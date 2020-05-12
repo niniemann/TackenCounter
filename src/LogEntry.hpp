@@ -1,0 +1,24 @@
+#ifndef LOGENTRY_HPP_
+#define LOGENTRY_HPP_
+
+#include <string>
+
+enum struct PlayerState {
+    SKIP = 0, // the player didn't play this round
+    WON,
+    LOST
+};
+
+struct LogEntry {
+    // the base value of the game, without bock modifiers
+    int baseValue;
+
+    // if this game starts a bock(y), e.g. because its baseValue is 0 etc.
+    bool startsBock;
+
+    // one result for every player (min 4, max 5 -- in case of 4 player the last one always skips)
+    PlayerState results[5];
+};
+
+
+#endif /* include guard: LOGENTRY_HPP_ */
