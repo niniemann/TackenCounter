@@ -1,5 +1,6 @@
 #include "LogModel.hpp"
 #include <QDebug>
+#include <QColor>
 
 LogModel::LogModel()
 {
@@ -126,15 +127,19 @@ Qt::ItemFlags LogModel::flags(const QModelIndex& index) const
 
 QVariant LogModel::data(const QModelIndex& index, int role) const
 {
+    // just display the number of the round
     if (index.column() == GameNumber)
     {
         if (role == Qt::DisplayRole) return index.row() + 1;
     }
+    // the value (display including modifiers, edit only base)
     else if (index.column() == GameValue)
     {
         if (role == Qt::DisplayRole) return totalValue(index.row());
         if (role == Qt::EditRole) return baseValue(index.row());
     }
+    // checkbox whether the game starts a bock or not,
+    // plus if we are in a bock or double-bock.
     else if (index.column() == GameStartsBock)
     {
         if (role == Qt::CheckStateRole)
@@ -144,6 +149,33 @@ QVariant LogModel::data(const QModelIndex& index, int role) const
             return QString::fromStdString(bockState(index.row()));
         }
     }
+    // display/edit won/lost/skipped rounds
+    else if (index.column() >= Player1 && index.column() <= Player5)
+    {
+        PlayerState result = log_[index.row()].results[index.column() - Player1];
+        qDebug() << "state: " << static_cast<int>(result);
+        if (role == Qt::BackgroundRole)
+        {
+            switch (result)
+            {
+                case PlayerState::WON:
+                    return QColor(133, 153, 0); // green
+                case PlayerState::LOST:
+                    return QColor(220, 50, 47); // red
+                case PlayerState::SKIP:
+                    return QColor::fromHsl(0, 0, 160); // grey
+            }
+        }
+        else if (role == Qt::EditRole)
+        {
+            switch (result)
+            {
+                case PlayerState::WON: return "WON";
+                case PlayerState::LOST: return "LOST";
+                case PlayerState::SKIP: return "SKIPPED";
+            }
+        }
+    }
 
     return QVariant();
 }
@@ -151,6 +183,7 @@ QVariant LogModel::data(const QModelIndex& index, int role) const
 
 bool LogModel::setData(const QModelIndex& index, const QVariant& value, int role)
 {
+    // base game value
     if (index.column() == GameValue && role == Qt::EditRole)
     {
         log_[index.row()].baseValue = value.toInt();
@@ -159,6 +192,7 @@ bool LogModel::setData(const QModelIndex& index, const QVariant& value, int role
         emit dataChanged(index, index);
         return true;
     }
+    // check state for triggers-bock
     else if (index.column() == GameStartsBock && role == Qt::CheckStateRole)
     {
         qDebug() << value;
@@ -172,6 +206,23 @@ bool LogModel::setData(const QModelIndex& index, const QVariant& value, int role
         auto br = this->index(rowCount()-1, GameStartsBock);
 
         qDebug() << tl << br;
+        emit dataChanged(tl, br);
+
+        return true;
+    }
+    // player won/lost/skipped
+    else if (index.column() >= Player1 && index.column() <= Player5 && role == Qt::EditRole)
+    {
+        QString stateStr = value.toString();
+        PlayerState newState = (value == "WON"? PlayerState::WON :
+                                (value == "LOST"? PlayerState::LOST :
+                                                    PlayerState::SKIP));
+
+        log_[index.row()].results[index.column() - Player1] = newState;
+
+        // this changes everything after this round!
+        auto tl = index.sibling(index.row(), GameValue);
+        auto br = index.sibling(rowCount()-1, Player5);
         emit dataChanged(tl, br);
 
         return true;

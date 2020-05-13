@@ -23,6 +23,7 @@ link_directories(${Qt5_LIBRARY_DIRS})
 include_directories(src)
 
 set(SRC
+    src/PlayerStateDelegate.cpp
     src/LogModel.cpp
     src/CounterWidget.cpp
     src/main.cpp
