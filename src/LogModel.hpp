@@ -54,6 +54,7 @@ public:
     QModelIndex index(int row, int column, const QModelIndex& parent = QModelIndex()) const override;
     QModelIndex parent(const QModelIndex &child) const override;
     QVariant headerData(int column, Qt::Orientation, int role = Qt::DisplayRole) const override;
+    bool setHeaderData(int column, Qt::Orientation, const QVariant& value, int role = Qt::EditRole) override;
     Qt::ItemFlags flags(const QModelIndex &index) const override;
     bool setData(const QModelIndex& index, const QVariant& value, int role = Qt::EditRole) override;
 };

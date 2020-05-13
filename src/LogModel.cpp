@@ -69,9 +69,41 @@ QVariant LogModel::headerData(int column, Qt::Orientation, int role) const
             case ColumnCount: return ""; // dummy. never reached
         }
     }
+    else if (role == Qt::EditRole)
+    {
+        switch (column)
+        {
+            case Player1: return playerName(0);
+            case Player2: return playerName(1);
+            case Player3: return playerName(2);
+            case Player4: return playerName(3);
+            case Player5: return playerName(4);
+            default:
+                          return QVariant();
+        }
+    }
 
     return QVariant();
 }
+
+
+bool LogModel::setHeaderData(int column, Qt::Orientation orientation,
+                             const QVariant& value, int role)
+{
+    if (role == Qt::EditRole)
+    {
+        if (column >= Player1 && column <= Player5)
+        {
+            playerNames_[column - Player1] = value.toString().toStdString();
+            emit headerDataChanged(orientation, column, column);
+            return true;
+        }
+    }
+    return false;
+}
+
+
+
 
 Qt::ItemFlags LogModel::flags(const QModelIndex& index) const
 {
@@ -86,7 +118,7 @@ Qt::ItemFlags LogModel::flags(const QModelIndex& index) const
         case Player3:
         case Player4:
         case Player5:
-             return Qt::ItemIsEnabled | Qt::ItemIsUserCheckable;
+             return Qt::ItemIsEnabled | Qt::ItemIsEditable;
     }
 
     return QAbstractItemModel::flags(index);
@@ -206,10 +238,24 @@ std::string LogModel::bockState(int above, int index) const
 
 std::string LogModel::bockState(int index) const
 {
+    if (index <= 0) return "";
+
     QString state;
     for (int above = index-5; above < index; above++)
     {
         state += QString::fromStdString(bockState(above, index));
     }
+
+    // add indentation if necessary
+    // NOTE: This does not work perfectly yet... but is good enough for
+    // the usual max of 2 stacking BOCKs.
+    QString preState = QString::fromStdString(bockState(index-1));
+    int expectedSize = preState.size();
+    QString cpy = state;
+    if (cpy.replace(" ", "").startsWith("Y") && cpy.endsWith("B")) expectedSize++;
+
+    if (!state.isEmpty() && !preState.endsWith("Y"))
+        state = QString(" ").repeated(expectedSize - state.length()) + state;
+
     return state.toStdString();
 }
