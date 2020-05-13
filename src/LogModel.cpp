@@ -130,7 +130,16 @@ QVariant LogModel::data(const QModelIndex& index, int role) const
     // just display the number of the round
     if (index.column() == GameNumber)
     {
-        if (role == Qt::DisplayRole) return index.row() + 1;
+        bool valid = isGameValid(index.row());
+        if (valid)
+        {
+            if (role == Qt::DisplayRole) return index.row() + 1;
+        }
+        else
+        {
+            if (role == Qt::DisplayRole) return "INVALID";
+            if (role == Qt::BackgroundRole) return QColor(220, 50, 47);
+        }
     }
     // the value (display including modifiers, edit only base)
     else if (index.column() == GameValue)
@@ -230,6 +239,24 @@ bool LogModel::setData(const QModelIndex& index, const QVariant& value, int role
 
     return false;
 }
+
+
+bool LogModel::isGameValid(int index) const
+{
+    auto& entry = log_[index];
+
+    // number of players that lost/won/skipped this round
+    int numLost = 0, numWon = 0, numSkipped = 0;
+    for (int p = 0; p < 5; p++)
+    {
+        if (entry.results[p] == PlayerState::WON) numWon++;
+        if (entry.results[p] == PlayerState::LOST) numLost++;
+        if (entry.results[p] == PlayerState::SKIP) numSkipped++;
+    }
+
+    return numLost > 0 && numWon > 0 && numSkipped == 1;
+}
+
 
 
 int LogModel::activeBockCount(int index) const

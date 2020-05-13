@@ -27,6 +27,12 @@ public:
     QString playerName(int num) const;
 
 
+    // checks if the constraints for a valid game are fulfilled:
+    // - exactly one player skipped
+    // - at least one player won
+    // - at least one player lost
+    bool isGameValid(int index) const;
+
     // get the base value of a game
     int baseValue(int index) const;
 
