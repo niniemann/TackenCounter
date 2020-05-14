@@ -252,6 +252,15 @@ QVariant LogModel::data(const QModelIndex& index, int role) const
                 case PlayerState::SKIP: return "SKIPPED";
             }
         }
+        else if (role == Qt::DisplayRole)
+        {
+            if (result == PlayerState::SKIP) return QVariant();
+            return wonValue(index.row(), index.column() - Player1);
+        }
+        else if (role == Qt::TextAlignmentRole)
+        {
+            return Qt::AlignCenter;
+        }
     }
 
     return QVariant();
@@ -406,3 +415,23 @@ std::string LogModel::bockState(int index) const
 
     return state.toStdString();
 }
+
+
+int LogModel::wonValue(int index, int player) const
+{
+    int soloPlayer = -1;
+    bool solo = isGameSolo(index, &soloPlayer);
+
+    int value = totalValue(index);
+    // in a normal game, everyone wins or loses the value
+    // but in a solo, the solo-player wins/loses 3x the value.
+    if (solo && player == soloPlayer)
+    {
+        value *= 3;
+    }
+
+    if (log_[index].results[player] == PlayerState::WON) return value;
+    if (log_[index].results[player] == PlayerState::LOST) return -value;
+    return 0;
+}
+

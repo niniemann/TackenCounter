@@ -46,6 +46,10 @@ public:
     // get the total value of a game, including modifiers
     int totalValue(int index) const;
 
+    // calculate how much the player won (may be negative) in the given round
+    int wonValue(int index, int player) const;
+
+
     // check if the entry at above influences the entry at index through a bock(y)
     bool addsBock(int above, int index) const;
 
