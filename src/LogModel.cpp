@@ -419,6 +419,8 @@ std::string LogModel::bockState(int index) const
 
 int LogModel::wonValue(int index, int player) const
 {
+    if (!isGameValid(index)) return 0;
+
     int soloPlayer = -1;
     bool solo = isGameSolo(index, &soloPlayer);
 
