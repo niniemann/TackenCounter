@@ -18,6 +18,10 @@ struct LogEntry {
 
     // one result for every player (min 4, max 5 -- in case of 4 player the last one always skips)
     PlayerState results[5];
+
+    // just a field to store the cumulative sum of the players value in
+    // dynamically set by the model, not to be persisted
+    int cumSum[5];
 };
 
 

@@ -23,6 +23,8 @@ CounterWidget::CounterWidget(QWidget* parent)
     connect(form_->inputName4, &QLineEdit::textEdited, this, &CounterWidget::playerNameChanged);
     connect(form_->inputName5, &QLineEdit::textEdited, this, &CounterWidget::playerNameChanged);
     connect(form_->boxFivePlayers, &QCheckBox::stateChanged, this, &CounterWidget::playerCountChanged);
+    connect(form_->radioCumulative, &QRadioButton::clicked, this, &CounterWidget::displayCumSumChanged);
+    connect(form_->radioSingle, &QRadioButton::clicked, this, &CounterWidget::displayCumSumChanged);
 }
 
 CounterWidget::~CounterWidget()
@@ -30,6 +32,10 @@ CounterWidget::~CounterWidget()
     delete form_;
 }
 
+void CounterWidget::displayCumSumChanged()
+{
+    model_.showCumSum(form_->radioCumulative->isChecked());
+}
 
 void CounterWidget::playerNameChanged()
 {

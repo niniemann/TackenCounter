@@ -3,7 +3,7 @@
 #include <QColor>
 
 LogModel::LogModel()
-    : fivePlayers_(false)
+    : fivePlayers_(false), showCumSum_(false)
 {
     LogEntry e;
     e.baseValue = 1;
@@ -25,8 +25,26 @@ LogModel::LogModel()
     log_.push_back(e);
     log_.push_back(e);
     log_.push_back(e);
+
+    recalcCumSum();
+
+    // always recalculate the cum sum when something changes.
+    // this is not efficient, but we are talking about adding some numbers...
+    // nothing really heavy...
+    connect(this, &QAbstractItemModel::dataChanged, this, &LogModel::recalcCumSum);
 }
 
+
+void LogModel::showCumSum(bool on)
+{
+    if (showCumSum_ != on)
+    {
+        showCumSum_ = on;
+        auto tl = this->index(0, 0);
+        auto br = this->index(log_.size()-1, Columns::ColumnCount-1);
+        emit dataChanged(tl, br);
+    }
+}
 
 int LogModel::columnCount(const QModelIndex& /*parent*/) const
 {
@@ -49,6 +67,28 @@ QModelIndex LogModel::parent(const QModelIndex& /*child*/) const
     return QModelIndex();
 }
 
+
+void LogModel::recalcCumSum()
+{
+    int sum[5] = {0, 0, 0, 0, 0};
+
+    size_t index = 0;
+    for (auto& entry : log_)
+    {
+        for (int p = 0; p < 5; p++)
+        {
+            sum[p] += wonValue(index, p);
+            entry.cumSum[p] = sum[p];
+        }
+        index++;
+    }
+
+    // f*ck it...
+    this->beginResetModel();
+    this->endResetModel();
+}
+
+
 bool LogModel::fivePlayers() const
 {
     return fivePlayers_;
@@ -63,6 +103,8 @@ void LogModel::setFivePlayers(bool on)
         fivePlayers_ = on;
         this->endResetModel();
     }
+
+    recalcCumSum();
 }
 
 void LogModel::setPlayerName(int num, const QString& name)
@@ -86,11 +128,21 @@ QVariant LogModel::headerData(int column, Qt::Orientation, int role) const
             case GameNumber: return "No.";
             case GameValue: return "Value";
             case GameStartsBock: return "B";
-            case Player1: return playerName(0);
-            case Player2: return playerName(1);
-            case Player3: return playerName(2);
-            case Player4: return playerName(3);
-            case Player5: return playerName(4);
+            case Player1:
+            case Player2:
+            case Player3:
+            case Player4:
+            case Player5:
+            {
+                int p = column - Player1;
+                int sum = 0;
+                if (log_.size() > 0)
+                {
+                    sum = log_.rbegin()->cumSum[p];
+                }
+
+                return playerName(p) + " [" + QString::number(sum) + "]";
+            }
             case ColumnCount: return ""; // dummy. never reached
         }
     }
@@ -255,7 +307,14 @@ QVariant LogModel::data(const QModelIndex& index, int role) const
         else if (role == Qt::DisplayRole)
         {
             if (result == PlayerState::SKIP) return QVariant();
-            return wonValue(index.row(), index.column() - Player1);
+            if (showCumSum_)
+            {
+                return log_[index.row()].cumSum[index.column() - Player1];
+            }
+            else
+            {
+                return wonValue(index.row(), index.column() - Player1);
+            }
         }
         else if (role == Qt::TextAlignmentRole)
         {

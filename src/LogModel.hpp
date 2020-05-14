@@ -6,13 +6,21 @@
 #include "LogEntry.hpp"
 
 class LogModel : public QAbstractItemModel {
+    Q_OBJECT
+
     std::vector<LogEntry> log_;
 
     // Whether we are playing with five or four players.
     // Relevant e.g. for BOCK vs BOCKY
     bool fivePlayers_;
 
+    bool showCumSum_;
+
     std::string playerNames_[5];
+
+public slots:
+    void recalcCumSum();
+
 public:
     enum Columns {
         GameNumber = 0,
@@ -23,6 +31,9 @@ public:
     };
 
     LogModel();
+
+
+    void showCumSum(bool on);
 
     bool fivePlayers() const;
     void setFivePlayers(bool on);

@@ -25,6 +25,7 @@ public:
 public slots:
     void playerNameChanged();
     void playerCountChanged();
+    void displayCumSumChanged();
 };
 
 
