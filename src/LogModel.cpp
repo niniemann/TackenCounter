@@ -195,7 +195,10 @@ bool LogModel::setData(const QModelIndex& index, const QVariant& value, int role
     // base game value
     if (index.column() == GameValue && role == Qt::EditRole)
     {
-        log_[index.row()].baseValue = value.toInt();
+        int val = value.toInt();
+        if (val < 0) val = 0; // don't accept values less than 0!
+
+        log_[index.row()].baseValue = val;
 
         // TODO: this affects a lot more! Total/cumulative sums
         emit dataChanged(index, index);
