@@ -24,6 +24,10 @@ public:
 
     LogModel();
 
+    bool fivePlayers() const;
+    void setFivePlayers(bool on);
+
+    void setPlayerName(int num, const QString& name);
     QString playerName(int num) const;
 
     // checks if the game was a solo, and if true stores the player number (0-4)

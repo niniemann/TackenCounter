@@ -13,12 +13,18 @@ namespace Ui {
     A widget with a treeview to display and manipulate a LogModel.
 */
 class CounterWidget : public QWidget {
+    Q_OBJECT
+
     Ui::CounterWidget* form_;
 
     LogModel model_;
 public:
     CounterWidget(QWidget* parent = nullptr);
     ~CounterWidget();
+
+public slots:
+    void playerNameChanged();
+    void playerCountChanged();
 };
 
 

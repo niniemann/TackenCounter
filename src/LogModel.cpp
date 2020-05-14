@@ -3,6 +3,7 @@
 #include <QColor>
 
 LogModel::LogModel()
+    : fivePlayers_(false)
 {
     LogEntry e;
     e.baseValue = 1;
@@ -46,6 +47,29 @@ QModelIndex LogModel::index(int row, int col, const QModelIndex& /*parent*/) con
 QModelIndex LogModel::parent(const QModelIndex& /*child*/) const
 {
     return QModelIndex();
+}
+
+bool LogModel::fivePlayers() const
+{
+    return fivePlayers_;
+}
+
+void LogModel::setFivePlayers(bool on)
+{
+    if (on != fivePlayers_)
+    {
+        // use resetModel as this basically affects all bocks, everything...
+        this->beginResetModel();
+        fivePlayers_ = on;
+        this->endResetModel();
+    }
+}
+
+void LogModel::setPlayerName(int num, const QString& name)
+{
+    playerNames_[num] = name.toStdString();
+
+    emit headerDataChanged(Qt::Vertical, 0, Columns::ColumnCount);
 }
 
 QString LogModel::playerName(int num) const
@@ -207,7 +231,6 @@ QVariant LogModel::data(const QModelIndex& index, int role) const
     else if (index.column() >= Player1 && index.column() <= Player5)
     {
         PlayerState result = log_[index.row()].results[index.column() - Player1];
-        qDebug() << "state: " << static_cast<int>(result);
         if (role == Qt::BackgroundRole)
         {
             switch (result)
@@ -252,7 +275,6 @@ bool LogModel::setData(const QModelIndex& index, const QVariant& value, int role
     // check state for triggers-bock
     else if (index.column() == GameStartsBock && role == Qt::CheckStateRole)
     {
-        qDebug() << value;
         log_[index.row()].startsBock = (value == Qt::Checked);
 
         // this changes the value of this,
@@ -262,7 +284,6 @@ bool LogModel::setData(const QModelIndex& index, const QVariant& value, int role
         auto tl = this->index(index.row(), GameValue);
         auto br = this->index(rowCount()-1, GameStartsBock);
 
-        qDebug() << tl << br;
         emit dataChanged(tl, br);
 
         return true;
