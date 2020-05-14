@@ -125,6 +125,43 @@ Qt::ItemFlags LogModel::flags(const QModelIndex& index) const
     return QAbstractItemModel::flags(index);
 }
 
+bool LogModel::isGameSolo(int index, int* player) const
+{
+    auto& entry = log_[index];
+    if (!isGameValid(index)) return false;
+
+    int numWon = 0;
+    int playerThatWon = -1;
+    int playerThatLost = -1;
+
+    for (int i = 0; i < 5; i++)
+    {
+        if (entry.results[i] == PlayerState::WON)
+        {
+            numWon++;
+            playerThatWon = i;
+        }
+        else if (entry.results[i] == PlayerState::LOST)
+        {
+            playerThatLost = i;
+        }
+    }
+
+    if (numWon == 1)
+    {
+        if (player) *player = playerThatWon;
+        return true;
+    }
+    else if (numWon == 3)
+    {
+        if (player) *player = playerThatLost;
+        return true;
+    }
+
+    return false;
+}
+
+
 QVariant LogModel::data(const QModelIndex& index, int role) const
 {
     // just display the number of the round
@@ -133,7 +170,14 @@ QVariant LogModel::data(const QModelIndex& index, int role) const
         bool valid = isGameValid(index.row());
         if (valid)
         {
-            if (role == Qt::DisplayRole) return index.row() + 1;
+            if (role == Qt::DisplayRole)
+            {
+                return (isGameSolo(index.row()) ? "SOLO  " : "") + QString::number(index.row() + 1);
+            }
+            else if (role == Qt::TextAlignmentRole)
+            {
+                return Qt::AlignRight;
+            }
         }
         else
         {
@@ -146,6 +190,7 @@ QVariant LogModel::data(const QModelIndex& index, int role) const
     {
         if (role == Qt::DisplayRole) return totalValue(index.row());
         if (role == Qt::EditRole) return baseValue(index.row());
+        if (role == Qt::TextAlignmentRole) return Qt::AlignCenter;
     }
     // checkbox whether the game starts a bock or not,
     // plus if we are in a bock or double-bock.

@@ -26,6 +26,9 @@ public:
 
     QString playerName(int num) const;
 
+    // checks if the game was a solo, and if true stores the player number (0-4)
+    // in the int* player.
+    bool isGameSolo(int index, int* player = nullptr) const;
 
     // checks if the constraints for a valid game are fulfilled:
     // - exactly one player skipped
