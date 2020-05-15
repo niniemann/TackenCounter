@@ -187,7 +187,7 @@ Qt::ItemFlags LogModel::flags(const QModelIndex& index) const
     switch (index.column())
     {
         case ColumnCount: return Qt::NoItemFlags;
-        case GameNumber: return Qt::ItemIsEnabled;
+        case GameNumber: return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
         case GameValue: return Qt::ItemIsEnabled | Qt::ItemIsEditable;
         case GameStartsBock: return Qt::ItemIsEnabled | Qt::ItemIsUserCheckable;
         case Player1:
