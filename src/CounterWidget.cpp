@@ -53,6 +53,7 @@ CounterWidget::CounterWidget(QWidget* parent)
     }
 
     form_->widget->setChart(&playerValueChart_);
+    form_->widget->setRenderHint(QPainter::HighQualityAntialiasing);
 
     // recalculate the statistics whenever the current tab changed.
     connect(form_->tabWidget, &QTabWidget::currentChanged, this, &CounterWidget::updateStatistics);
