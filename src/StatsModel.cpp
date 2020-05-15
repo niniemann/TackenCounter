@@ -147,15 +147,17 @@ void StatsModel::recalculate()
 
     for (int p = 0; p < 5; p++)
     {
-        auto& stats = playerStats_[p].stats;
-        stats.clear();
+        auto& stats = playerStats_[p];
+        stats.stats.clear();
 
-        stats[RoundsPlayed] = 0;
-        stats[RoundsWon] = 0;
-        stats[RoundsLost] = 0;
-        stats[SoliPlayed] = 0;
-        stats[SoliWon] = 0;
-        stats[SoliBeaten] = 0;
+        stats.stats[RoundsPlayed] = 0;
+        stats.stats[RoundsWon] = 0;
+        stats.stats[RoundsLost] = 0;
+        stats.stats[SoliPlayed] = 0;
+        stats.stats[SoliWon] = 0;
+        stats.stats[SoliBeaten] = 0;
+
+        stats.valueSeries.clear();
     }
 
     if (!model_)
@@ -165,7 +167,7 @@ void StatsModel::recalculate()
     }
 
     // iterate the LogModel and calc stats
-    for (int i = 0; i < model_->rowCount(); i++)
+    for (int i = 0; i < model_->rowCount()-1; i++)
     {
         if (!model_->isGameValid(i)) continue;
 
@@ -188,6 +190,11 @@ void StatsModel::recalculate()
 
             // recalc percentage won
             stats[RoundsWonPercentage] = round((double) stats[RoundsWon] * 100. / (double) stats[RoundsPlayed]);
+
+            // add data point (cumsum over time)
+            auto& series = playerStats_[p].valueSeries;
+            auto cumsum = model_->cumSum(i, p);
+            series.append(i, cumsum);
         }
 
         // count soli
@@ -223,4 +230,10 @@ void StatsModel::recalculate()
     }
 
     endResetModel();
+}
+
+
+QLineSeries* StatsModel::playerValueSeries(int player)
+{
+    return &(playerStats_[player].valueSeries);
 }

@@ -25,7 +25,9 @@ CounterWidget::CounterWidget(QWidget* parent)
     form_->treeView->setItemDelegateForColumn(LogModel::Player4, delegate);
     form_->treeView->setItemDelegateForColumn(LogModel::Player5, delegate);
 
+    // disable most tabs at startup
     form_->tabWidget->removeTab(form_->tabWidget->indexOf(form_->tabLog));
+    form_->tabWidget->removeTab(form_->tabWidget->indexOf(form_->tabStats));
 
     connect(form_->inputName1, &QLineEdit::textEdited, this, &CounterWidget::playerNameChanged);
     connect(form_->inputName2, &QLineEdit::textEdited, this, &CounterWidget::playerNameChanged);
@@ -42,8 +44,18 @@ CounterWidget::CounterWidget(QWidget* parent)
     saveDelayTimer_.setSingleShot(true);
     connect(&saveDelayTimer_, &QTimer::timeout, this, &CounterWidget::save);
 
+
+    // setup charts
+    for (int p = 0; p < 5; p++)
+    {
+        auto series = statsModel_.playerValueSeries(p);
+        playerValueChart_.addSeries(series);
+    }
+
+    form_->widget->setChart(&playerValueChart_);
+
     // recalculate the statistics whenever the current tab changed.
-    connect(form_->tabWidget, &QTabWidget::currentChanged, &statsModel_, &StatsModel::recalculate);
+    connect(form_->tabWidget, &QTabWidget::currentChanged, this, &CounterWidget::updateStatistics);
 
     form_->treeWidget->QTreeView::setModel(&statsModel_);
 }
@@ -54,6 +66,22 @@ CounterWidget::~CounterWidget()
 
     delete form_;
     if (model_) delete model_;
+}
+
+
+void CounterWidget::updateStatistics()
+{
+    if (!model_) return;
+    model_->recalcCumSum();
+    statsModel_.recalculate();
+
+    for (int i = 0; i < 5; i++)
+    {
+        playerValueChart_.removeSeries(statsModel_.playerValueSeries(i));
+        playerValueChart_.addSeries(statsModel_.playerValueSeries(i));
+    }
+
+    playerValueChart_.createDefaultAxes();
 }
 
 
@@ -76,6 +104,7 @@ void CounterWidget::setModel(LogModel* model, const QString& filename)
     connect(model_, &LogModel::headerDataChanged, this, &CounterWidget::delayedSave);
 
     statsModel_.setLogModel(model);
+    form_->tabWidget->insertTab(2, form_->tabStats, "Statistics");
 }
 
 

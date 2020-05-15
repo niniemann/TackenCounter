@@ -55,6 +55,7 @@ public:
 
 
     void showCumSum(bool on);
+    int cumSum(int index, int player) const;
 
     bool fivePlayers() const;
     void setFivePlayers(bool on);

@@ -2,6 +2,8 @@
 #define STATSMODEL_HPP_
 
 #include <QAbstractTableModel>
+#include <QtCharts>
+
 #include "LogModel.hpp"
 
 
@@ -32,6 +34,7 @@ public:
 
     struct PlayerStats {
         QMap<Statistic, int> stats;
+        QLineSeries valueSeries;
     };
 
 private:
@@ -42,6 +45,7 @@ private:
     bool playerHasMin(int player, Statistic stat) const;
 public:
 
+    QLineSeries* playerValueSeries(int player);
 
     int rowCount(const QModelIndex& parent = QModelIndex()) const override;
     int columnCount(const QModelIndex& parent = QModelIndex()) const override;

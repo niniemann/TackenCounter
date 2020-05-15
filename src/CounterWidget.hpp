@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include <QTimer>
+#include <QtCharts>
 
 #include "LogModel.hpp"
 #include "StatsModel.hpp"
@@ -24,6 +25,8 @@ class CounterWidget : public QWidget {
     StatsModel statsModel_;
 
     QString filename_;
+
+    QChart playerValueChart_;
 
     /**
         order to not spam the disk with saving after every single little change,
@@ -48,6 +51,8 @@ public slots:
 
     void save();
     void delayedSave();
+
+    void updateStatistics();
 };
 
 

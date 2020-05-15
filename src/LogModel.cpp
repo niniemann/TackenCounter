@@ -48,6 +48,11 @@ void LogModel::showCumSum(bool on)
     }
 }
 
+int LogModel::cumSum(int index, int player) const
+{
+    return log_[index].cumSum[player];
+}
+
 int LogModel::columnCount(const QModelIndex& /*parent*/) const
 {
     return Columns::ColumnCount;
