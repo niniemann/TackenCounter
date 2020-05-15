@@ -137,6 +137,11 @@ void CounterWidget::newGame()
     if (!filename.isEmpty())
     {
         form_->tabWidget->insertTab(1, form_->tabLog, "Log");
+        form_->inputName1->clear();
+        form_->inputName2->clear();
+        form_->inputName3->clear();
+        form_->inputName4->clear();
+        form_->inputName5->clear();
 
         auto newModel = new LogModel();
         setModel(newModel, filename);
