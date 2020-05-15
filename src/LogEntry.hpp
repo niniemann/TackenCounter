@@ -2,6 +2,8 @@
 #define LOGENTRY_HPP_
 
 #include <string>
+#include <cereal/cereal.hpp>
+#include <cereal/types/array.hpp>
 
 enum struct PlayerState {
     SKIP = 0, // the player didn't play this round
@@ -22,6 +24,16 @@ struct LogEntry {
     // just a field to store the cumulative sum of the players value in
     // dynamically set by the model, not to be persisted
     int cumSum[5];
+
+    template <class Archive>
+    void serialize(Archive& ar)
+    {
+        ar(
+            cereal::make_nvp<Archive>("baseValue", baseValue),
+            cereal::make_nvp<Archive>("startsBock", startsBock),
+            cereal::make_nvp<Archive>("results", results)
+        );
+    }
 };
 
 

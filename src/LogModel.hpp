@@ -5,6 +5,11 @@
 #include <vector>
 #include "LogEntry.hpp"
 
+#include <cereal/cereal.hpp>
+#include <cereal/types/vector.hpp>
+#include <cereal/types/array.hpp>
+
+
 class LogModel : public QAbstractItemModel {
     Q_OBJECT
 
@@ -36,6 +41,17 @@ public:
     };
 
     LogModel();
+
+
+    template <class Archive>
+    void serialize(Archive& ar)
+    {
+        ar(
+            cereal::make_nvp<Archive>("fivePlayers", fivePlayers_),
+            cereal::make_nvp<Archive>("playerName", playerNames_),
+            cereal::make_nvp<Archive>("rounds", log_)
+        );
+    }
 
 
     void showCumSum(bool on);

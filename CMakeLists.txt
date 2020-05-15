@@ -4,6 +4,8 @@ project(TackenCounter VERSION 0.1.0)
 
 add_definitions(-DCEREAL_THREAD_SAFE=1)
 
+SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake")
+
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
@@ -15,6 +17,7 @@ endif()
 
 add_definitions(-std=c++11 -Wall -Wextra -pedantic -Wnon-virtual-dtor)
 
+find_package(Cereal REQUIRED)
 
 find_package(Qt5 COMPONENTS Core Widgets REQUIRED)
 include_directories(${Qt5_INCLUDE_DIRS})
