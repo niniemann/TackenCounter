@@ -77,8 +77,12 @@ void CounterWidget::updateStatistics()
 
     for (int i = 0; i < 5; i++)
     {
-        playerValueChart_.removeSeries(statsModel_.playerValueSeries(i));
-        playerValueChart_.addSeries(statsModel_.playerValueSeries(i));
+        auto series = statsModel_.playerValueSeries(i);
+        series->setName(model_->playerName(i));
+
+        // charts are dumb. need to remove+add to update it...
+        playerValueChart_.removeSeries(series);
+        playerValueChart_.addSeries(series);
     }
 
     playerValueChart_.createDefaultAxes();
