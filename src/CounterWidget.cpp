@@ -37,6 +37,7 @@ CounterWidget::CounterWidget(QWidget* parent)
     connect(form_->radioSingle, &QRadioButton::clicked, this, &CounterWidget::displayCumSumChanged);
 
     connect(form_->btnNewGame, &QPushButton::clicked, this, &CounterWidget::newGame);
+    connect(form_->btnLoadGame, &QPushButton::clicked, this, &CounterWidget::loadGame);
 
     saveDelayTimer_.setSingleShot(true);
     connect(&saveDelayTimer_, &QTimer::timeout, this, &CounterWidget::save);
@@ -64,6 +65,7 @@ void CounterWidget::setModel(LogModel* model, const QString& filename)
     }
 
     filename_ = filename;
+    setWindowTitle("TackenCounter - " + filename_);
     model_ = model;
     connect(model_, &LogModel::dataChanged, this, &CounterWidget::delayedSave);
     connect(model_, &LogModel::headerDataChanged, this, &CounterWidget::delayedSave);
@@ -106,10 +108,34 @@ void CounterWidget::newGame()
 
 void CounterWidget::loadGame()
 {
-    // save currently open game
-    save();
 
-    // TODO message box etc
+    QString filename = QFileDialog::getOpenFileName(
+            this, "Load game...",
+            QDir::homePath(),
+            "DoKo save file (*.doko)");
+
+    if (!filename.isEmpty())
+    {
+        // save currently open game
+        save();
+
+        // load the game
+        auto newModel = new LogModel();
+
+        try {
+            std::ifstream savefile(filename.toStdString());
+            cereal::JSONInputArchive ar(savefile);
+            ar(*newModel);
+
+            setModel(newModel, filename);
+            form_->tabWidget->insertTab(1, form_->tabLog, "Log");
+            form_->tabWidget->setCurrentWidget(form_->tabLog);
+
+        } catch (std::exception& e) {
+            QMessageBox::critical(this, "Error", "Error loading file: " + QString(e.what()));
+            delete newModel;
+        }
+    }
 }
 
 
