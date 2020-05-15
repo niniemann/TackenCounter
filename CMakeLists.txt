@@ -36,5 +36,5 @@ set(SRC
 )
 
 
-add_executable(main ${SRC})
-target_link_libraries(main Qt5::Core Qt5::Widgets Qt5::Charts)
+add_executable(${CMAKE_PROJECT_NAME} ${SRC})
+target_link_libraries(${CMAKE_PROJECT_NAME} Qt5::Core Qt5::Widgets Qt5::Charts)
