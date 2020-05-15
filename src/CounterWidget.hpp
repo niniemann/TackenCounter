@@ -2,6 +2,8 @@
 #define COUNTERWIDGET_HPP_
 
 #include <QWidget>
+#include <QTimer>
+
 #include "LogModel.hpp"
 
 namespace Ui {
@@ -19,9 +21,19 @@ class CounterWidget : public QWidget {
 
     LogModel* model_;
     QString filename_;
+
+    /**
+        order to not spam the disk with saving after every single little change,
+        every single little change starts/resets the timer (single-shot), and
+        only when the timer event is triggert the game will be saved.
+    */
+    QTimer saveDelayTimer_;
+
+    void setModel(LogModel* model, const QString& filename);
 public:
     CounterWidget(QWidget* parent = nullptr);
     ~CounterWidget();
+
 
 public slots:
     void playerNameChanged();
@@ -32,6 +44,7 @@ public slots:
     void loadGame();
 
     void save();
+    void delayedSave();
 };
 
 

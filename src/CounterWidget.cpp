@@ -37,47 +37,67 @@ CounterWidget::CounterWidget(QWidget* parent)
     connect(form_->radioSingle, &QRadioButton::clicked, this, &CounterWidget::displayCumSumChanged);
 
     connect(form_->btnNewGame, &QPushButton::clicked, this, &CounterWidget::newGame);
+
+    saveDelayTimer_.setSingleShot(true);
+    connect(&saveDelayTimer_, &QTimer::timeout, this, &CounterWidget::save);
 }
 
 CounterWidget::~CounterWidget()
 {
+    save(); // save on exit
+
     delete form_;
     if (model_) delete model_;
 }
 
 
+void CounterWidget::setModel(LogModel* model, const QString& filename)
+{
+    form_->treeView->setModel(model);
+
+    if (model_)
+    {
+        disconnect(model_, &LogModel::dataChanged, this, &CounterWidget::delayedSave);
+        disconnect(model_, &LogModel::headerDataChanged, this, &CounterWidget::delayedSave);
+        save();
+        delete model_;
+    }
+
+    filename_ = filename;
+    model_ = model;
+    connect(model_, &LogModel::dataChanged, this, &CounterWidget::delayedSave);
+    connect(model_, &LogModel::headerDataChanged, this, &CounterWidget::delayedSave);
+}
+
+
+void CounterWidget::delayedSave()
+{
+    // we could do with just a small 2 second delay to accumulate most bursts
+    // of editing. But still, there are many things that trigger this, even when
+    // the real data changed... So what the hell, just go with a 30 second
+    // delay. Doesn't matter, the game is saved in the dtor of this widget,
+    // -> automatically on closing the app. This is just in case of crashes.
+    saveDelayTimer_.start(std::chrono::seconds(30));
+}
+
 void CounterWidget::newGame()
 {
     QString filename = QFileDialog::getSaveFileName(
-                            this, "Game will be automatically saved to...",
-                            QDir::home().filePath(
-                                QDateTime::currentDateTime().toString("yyyyMMdd_hh_mm")
-                                                            .append(".doko")
-                            ),
-                            "DoKo save file (*.doko)");
+        this, "Game will be automatically saved to...",
+        QDir::home().filePath(
+            QDateTime::currentDateTime().toString("yyyyMMdd_hh_mm")
+                                        .append(".doko")
+        ),
+        "DoKo save file (*.doko)"
+    );
 
     if (!filename.isEmpty())
     {
-        qDebug() << "start new game!";
         form_->tabWidget->insertTab(1, form_->tabLog, "Log");
 
-        if (model_)
-        {
-            qDebug() << "save old game";
-            // first save the old one!
-            {
-                std::ofstream savefile(filename_.toStdString()); // <- previously configured filename!
-                cereal::JSONOutputArchive ar(savefile);
-                ar(*model_);
-            }
-        }
-
-        // create a new model, delete the old one
         auto newModel = new LogModel();
-        form_->treeView->setModel(newModel);
-        delete model_;
-        model_ = newModel;
-        filename_ = filename;
+        setModel(newModel, filename);
+
         // set focus to the log tab
         form_->tabWidget->setCurrentWidget(form_->tabLog);
     }
