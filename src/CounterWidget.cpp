@@ -167,9 +167,30 @@ void CounterWidget::loadGame()
             cereal::JSONInputArchive ar(savefile);
             ar(*newModel);
 
+            // remember the names!
+            // somethings keeps changing them on the model while I'm trying to
+            // set them in the gui...
+            QString names[5] =
+            {
+                newModel->playerName(0),
+                newModel->playerName(1),
+                newModel->playerName(2),
+                newModel->playerName(3),
+                newModel->playerName(4)
+            };
+
             setModel(newModel, filename);
             form_->tabWidget->insertTab(1, form_->tabLog, "Log");
             form_->tabWidget->setCurrentWidget(form_->tabLog);
+
+            form_->boxFivePlayers->setChecked(newModel->fivePlayers());
+
+            form_->inputName1->setText(names[0]);
+            form_->inputName2->setText(names[1]);
+            form_->inputName3->setText(names[2]);
+            form_->inputName4->setText(names[3]);
+            form_->inputName5->setText(names[4]);
+            playerNameChanged();
 
         } catch (std::exception& e) {
             QMessageBox::critical(this, "Error", "Error loading file: " + QString(e.what()));
