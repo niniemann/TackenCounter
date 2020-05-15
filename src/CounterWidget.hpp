@@ -17,7 +17,8 @@ class CounterWidget : public QWidget {
 
     Ui::CounterWidget* form_;
 
-    LogModel model_;
+    LogModel* model_;
+    QString filename_;
 public:
     CounterWidget(QWidget* parent = nullptr);
     ~CounterWidget();
@@ -26,6 +27,11 @@ public slots:
     void playerNameChanged();
     void playerCountChanged();
     void displayCumSumChanged();
+
+    void newGame();
+    void loadGame();
+
+    void save();
 };
 
 
