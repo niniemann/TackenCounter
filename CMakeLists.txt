@@ -19,7 +19,7 @@ add_definitions(-std=c++11 -Wall -Wextra -pedantic -Wnon-virtual-dtor)
 
 find_package(Cereal REQUIRED)
 
-find_package(Qt5 COMPONENTS Core Widgets REQUIRED)
+find_package(Qt5 COMPONENTS Core Widgets Charts REQUIRED)
 include_directories(${Qt5_INCLUDE_DIRS})
 link_directories(${Qt5_LIBRARY_DIRS})
 
@@ -28,6 +28,7 @@ include_directories(src)
 set(SRC
     src/PlayerStateDelegate.cpp
     src/LogModel.cpp
+    src/StatsModel.cpp
     src/CounterWidget.cpp
     src/main.cpp
 
@@ -36,4 +37,4 @@ set(SRC
 
 
 add_executable(main ${SRC})
-target_link_libraries(main Qt5::Core Qt5::Widgets)
+target_link_libraries(main Qt5::Core Qt5::Widgets Qt5::Charts)

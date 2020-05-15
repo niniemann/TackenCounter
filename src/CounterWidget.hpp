@@ -5,6 +5,7 @@
 #include <QTimer>
 
 #include "LogModel.hpp"
+#include "StatsModel.hpp"
 
 namespace Ui {
     class CounterWidget;
@@ -20,6 +21,8 @@ class CounterWidget : public QWidget {
     Ui::CounterWidget* form_;
 
     LogModel* model_;
+    StatsModel statsModel_;
+
     QString filename_;
 
     /**

@@ -5,6 +5,7 @@
 LogModel::LogModel()
     : fivePlayers_(false), showCumSum_(false)
 {
+    /*
     LogEntry e;
     e.baseValue = 1;
     e.startsBock = false;
@@ -25,6 +26,7 @@ LogModel::LogModel()
     log_.push_back(e);
     log_.push_back(e);
     log_.push_back(e);
+    */
 
     recalcCumSum();
 
@@ -281,6 +283,13 @@ QVariant LogModel::dummyData(int column, int role) const
         if (role == Qt::BackgroundRole)
         {
             if (skipsNext) return QColor::fromHsl(0, 0, 160);
+        }
+    }
+    else if (column == GameValue)
+    {
+        if (role == Qt::EditRole)
+        {
+            return 0;
         }
     }
 

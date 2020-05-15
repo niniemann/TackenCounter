@@ -41,6 +41,11 @@ CounterWidget::CounterWidget(QWidget* parent)
 
     saveDelayTimer_.setSingleShot(true);
     connect(&saveDelayTimer_, &QTimer::timeout, this, &CounterWidget::save);
+
+    // recalculate the statistics whenever the current tab changed.
+    connect(form_->tabWidget, &QTabWidget::currentChanged, &statsModel_, &StatsModel::recalculate);
+
+    form_->treeWidget->QTreeView::setModel(&statsModel_);
 }
 
 CounterWidget::~CounterWidget()
@@ -69,6 +74,8 @@ void CounterWidget::setModel(LogModel* model, const QString& filename)
     model_ = model;
     connect(model_, &LogModel::dataChanged, this, &CounterWidget::delayedSave);
     connect(model_, &LogModel::headerDataChanged, this, &CounterWidget::delayedSave);
+
+    statsModel_.setLogModel(model);
 }
 
 
