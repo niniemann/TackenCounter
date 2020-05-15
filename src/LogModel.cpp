@@ -54,7 +54,7 @@ int LogModel::columnCount(const QModelIndex& /*parent*/) const
 int LogModel::rowCount(const QModelIndex& parent) const
 {
     if (parent.isValid()) return 0;
-    return log_.size();
+    return log_.size()+1; // +1: one dummy entry to add more rows!
 }
 
 QModelIndex LogModel::index(int row, int col, const QModelIndex& /*parent*/) const
@@ -238,8 +238,81 @@ bool LogModel::isGameSolo(int index, int* player) const
 }
 
 
+QVariant LogModel::dummyData(int column, int role) const
+{
+    if (column == GameNumber)
+    {
+        if (role == Qt::DisplayRole) return QString::number(log_.size()+1);
+        if (role == Qt::TextAlignmentRole) return Qt::AlignRight;
+    }
+    else if (column >= Player1 && column <= Player5)
+    {
+        int player = column - Player1;
+        bool skipsNext;
+        if (log_.size() > 0)
+        {
+            // when player with five players, the one who skips changes each
+            // round. If this player must skip the next round is determined by
+            // checking if the previous player skipped the last round.
+            if (fivePlayers_)
+            {
+                int previousPlayer = (player + 4) % 5;
+                if (log_.back().results[previousPlayer] == PlayerState::SKIP)
+                {
+                    skipsNext = true;
+                }
+                else
+                {
+                    skipsNext = false;
+                }
+            }
+            else
+            {
+                // with 4 players its easy: the 5th player always skips.
+                skipsNext = (column == Player5);
+            }
+        }
+        else
+        {
+            // if this is the first round, the 5th player skips.
+            skipsNext = (column == Player5);
+        }
+
+        if (role == Qt::BackgroundRole)
+        {
+            if (skipsNext) return QColor::fromHsl(0, 0, 160);
+        }
+    }
+
+    return QVariant();
+}
+
+
+bool LogModel::setDummyData(int column, const QVariant& value, int role)
+{
+    LogEntry entry;
+    entry.baseValue = 0;
+    entry.startsBock = false;
+    for (int p = Player1; p <= Player5; p++)
+    {
+        // hack: only the to-skip-player gets a background role
+        auto state = dummyData(p, Qt::BackgroundRole);
+        if (state.isNull()) entry.results[p - Player1] = PlayerState::LOST;
+        else                 entry.results[p - Player1] = PlayerState::SKIP;
+    }
+
+    beginInsertRows(QModelIndex(), log_.size(), log_.size());
+    log_.push_back(entry);
+    endInsertRows();
+
+    return setData(this->index(log_.size()-1, column), value, role);
+}
+
 QVariant LogModel::data(const QModelIndex& index, int role) const
 {
+    // handle the dummy entry:
+    if (static_cast<size_t>(index.row()) == log_.size()) return dummyData(index.column(), role);
+
     // just display the number of the round
     if (index.column() == GameNumber)
     {
@@ -332,6 +405,10 @@ QVariant LogModel::data(const QModelIndex& index, int role) const
 
 bool LogModel::setData(const QModelIndex& index, const QVariant& value, int role)
 {
+    // handle dummy data first
+    if (static_cast<size_t>(index.row()) == log_.size())
+        return setDummyData(index.column(), value, role);
+
     // base game value
     if (index.column() == GameValue && role == Qt::EditRole)
     {

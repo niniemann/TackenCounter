@@ -18,6 +18,11 @@ class LogModel : public QAbstractItemModel {
 
     std::string playerNames_[5];
 
+    // the dummy is an additional, virtual entry in the list, as a convenient
+    // way to add more rows.
+    QVariant dummyData(int column, int role) const;
+    bool setDummyData(int column, const QVariant& value, int role);
+
 public slots:
     void recalcCumSum();
 
