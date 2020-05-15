@@ -313,7 +313,11 @@ QVariant LogModel::data(const QModelIndex& index, int role) const
             }
             else
             {
-                return wonValue(index.row(), index.column() - Player1);
+                int value = wonValue(index.row(), index.column() - Player1);
+                QString r("%1%2");
+                r = r.arg(value > 0 ? "+" : "")
+                     .arg(value);
+                return r;
             }
         }
         else if (role == Qt::TextAlignmentRole)
