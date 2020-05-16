@@ -5,6 +5,7 @@
 
 #include <fstream>
 #include <QFileDialog>
+#include <QFontDialog>
 #include <QMessageBox>
 #include <QDateTime>
 #include <QDebug>
@@ -57,6 +58,8 @@ CounterWidget::CounterWidget(QWidget* parent)
     connect(form_->tabWidget, &QTabWidget::currentChanged, this, &CounterWidget::updateStatistics);
 
     form_->treeStats->setModel(&statsModel_);
+
+    connect(form_->btnChangeFont, &QPushButton::clicked, this, &CounterWidget::changeFont);
 }
 
 CounterWidget::~CounterWidget()
@@ -253,4 +256,18 @@ void CounterWidget::playerCountChanged()
     }
 
     model_->setFivePlayers(five);
+}
+
+
+
+void CounterWidget::changeFont()
+{
+    bool ok;
+    QFont font = QFontDialog::getFont(&ok, QApplication::font(), this, "Select font",
+                                        QFontDialog::MonospacedFonts);
+
+    if (ok)
+    {
+        QApplication::setFont(font);
+    }
 }

@@ -53,6 +53,7 @@ public slots:
     void delayedSave();
 
     void updateStatistics();
+    void changeFont();
 };
 
 
