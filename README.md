@@ -11,21 +11,21 @@ When started, you are presented with a very minimalistic screen:
 
 Whether you select to start a new or load an existing game, in both cases you are greeted by a
 file dialog. The app automatically saves your changes on exit, and also after every little change made
-(though with a 30 second delay to not spam to many writes on the disk).
+(though with a 30 second delay to not spam too many writes on the disk).
 
 Selecting a good font is quite difficult, especially when compatibility with linux **and** windows is wanted.
-So.. choose yourself.
+So... choose yourself.
 
 The main screen is the "Log"-tab. Here you input the results of each round, by setting the base "Value",
 ticking the box indicating if the round triggers "Bockrunden", and selecting which players won the round (green background).
-BOCK-modifiers are included automatically in the score, as well as the different counting of SOLO rounds.
+BOCK-modifiers are included automatically in the score, as well as the different scoring of SOLO rounds.
 
 ![](/img/tackencounter_2.png)
 
-You can choose if you want to play with 4 or 5 players. In the letter case, Bockrunden are extended to 5
+You can choose if you want to play with 4 or 5 players. In the latter case, Bockrunden are extended to 5
 (BOCK becomes BOCKY), and the indicator for the next player to skip the round is updated automatically (grey background).
-The last column for the fifth player is always displayed, though in the 4-player-setting the player to skip a
-round always defaults to Player5.
+The last column for the fifth player is never hidden -- in the 4-player-setting the player to skip a
+round ajust always defaults to Player5.
 
 Last but not least, the third tab provides some statistics on the game. I guess there are lots of possibilities to extend this. :)
 
