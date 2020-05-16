@@ -35,6 +35,7 @@ set(SRC
     ui/counterwidget.ui
 )
 
+set(EXE_NAME ${CMAKE_PROJECT_NAME}_${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR})
 
-add_executable(${CMAKE_PROJECT_NAME} WIN32 ${SRC})
-target_link_libraries(${CMAKE_PROJECT_NAME} Qt5::Core Qt5::Widgets Qt5::Charts)
+add_executable(${EXE_NAME} WIN32 ${SRC})
+target_link_libraries(${EXE_NAME} Qt5::Core Qt5::Widgets Qt5::Charts)
