@@ -16,7 +16,9 @@ CounterWidget::CounterWidget(QWidget* parent)
 {
     form_->setupUi(this);
 
-    //form_->treeView->setModel(model_);
+    // disable most tabs at startup
+    form_->tabWidget->removeTab(form_->tabWidget->indexOf(form_->tabLog));
+    form_->tabWidget->removeTab(form_->tabWidget->indexOf(form_->tabStats));
 
     PlayerStateDelegate* delegate = new PlayerStateDelegate(form_->treeView);
     form_->treeView->setItemDelegateForColumn(LogModel::Player1, delegate);
@@ -24,10 +26,6 @@ CounterWidget::CounterWidget(QWidget* parent)
     form_->treeView->setItemDelegateForColumn(LogModel::Player3, delegate);
     form_->treeView->setItemDelegateForColumn(LogModel::Player4, delegate);
     form_->treeView->setItemDelegateForColumn(LogModel::Player5, delegate);
-
-    // disable most tabs at startup
-    form_->tabWidget->removeTab(form_->tabWidget->indexOf(form_->tabLog));
-    form_->tabWidget->removeTab(form_->tabWidget->indexOf(form_->tabStats));
 
     connect(form_->inputName1, &QLineEdit::textEdited, this, &CounterWidget::playerNameChanged);
     connect(form_->inputName2, &QLineEdit::textEdited, this, &CounterWidget::playerNameChanged);
@@ -58,7 +56,7 @@ CounterWidget::CounterWidget(QWidget* parent)
     // recalculate the statistics whenever the current tab changed.
     connect(form_->tabWidget, &QTabWidget::currentChanged, this, &CounterWidget::updateStatistics);
 
-    form_->treeWidget->QTreeView::setModel(&statsModel_);
+    form_->treeStats->setModel(&statsModel_);
 }
 
 CounterWidget::~CounterWidget()
@@ -105,11 +103,15 @@ void CounterWidget::setModel(LogModel* model, const QString& filename)
     filename_ = filename;
     setWindowTitle("TackenCounter - " + filename_);
     model_ = model;
-    connect(model_, &LogModel::dataChanged, this, &CounterWidget::delayedSave);
-    connect(model_, &LogModel::headerDataChanged, this, &CounterWidget::delayedSave);
 
-    statsModel_.setLogModel(model);
-    form_->tabWidget->insertTab(2, form_->tabStats, "Statistics");
+    if (model_)
+    {
+        connect(model_, &LogModel::dataChanged, this, &CounterWidget::delayedSave);
+        connect(model_, &LogModel::headerDataChanged, this, &CounterWidget::delayedSave);
+
+        statsModel_.setLogModel(model);
+        form_->tabWidget->insertTab(2, form_->tabStats, "Statistics");
+    }
 }
 
 
