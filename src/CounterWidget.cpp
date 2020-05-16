@@ -11,6 +11,7 @@
 #include <QDebug>
 #include <cereal/cereal.hpp>
 #include <cereal/archives/json.hpp>
+#include <QSettings>
 
 CounterWidget::CounterWidget(QWidget* parent)
     : QWidget(parent), form_(new Ui::CounterWidget), model_(nullptr)
@@ -269,5 +270,9 @@ void CounterWidget::changeFont()
     if (ok)
     {
         QApplication::setFont(font);
+
+        // also, save the selected font
+        QSettings settings("limth", "TackenCounter");
+        settings.setValue("font", font);
     }
 }
