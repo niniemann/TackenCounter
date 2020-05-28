@@ -89,6 +89,11 @@ public:
     // count the number of active bocks at a given index
     int activeBockCount(int index) const;
 
+    // compute the level at which the bock triggered by the game at index
+    // starts ("how many characters/spaces before the B added by this at
+    // index+1?")
+    int bockLevelStartedBy(int index) const;
+
     // return the char that represents the bock state added by above to index
     std::string bockState(int above, int index) const;
 

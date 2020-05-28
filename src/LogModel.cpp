@@ -546,26 +546,47 @@ std::string LogModel::bockState(int above, int index) const
 }
 
 
+int LogModel::bockLevelStartedBy(int index) const
+{
+    if (index < 0) return -1;
+
+    // which is the bock-level of the *latest* bock that affects index+1?
+    int latest = -1;
+    for (int above = index-1; above > index-6; above--)
+    {
+        if (addsBock(above, index+1))
+        {
+            latest = bockLevelStartedBy(above);
+            break;
+        }
+    }
+
+    // well, we need to just add 1.
+    return latest + 1;
+}
+
+
 std::string LogModel::bockState(int index) const
 {
     if (index <= 0) return "";
 
+    bool firstBockFound = false;
     QString state;
     for (int above = index-5; above < index; above++)
     {
-        state += QString::fromStdString(bockState(above, index));
+        auto bockStateOfAbove = bockState(above, index);
+        if (!bockStateOfAbove.empty() && !firstBockFound)
+        {
+            // the indentation to be used here is determined by how deep
+            // the earliest bock-trigger started it. The earliest bock-trigger
+            // was at "above", but it started it at "above+1".
+            firstBockFound = true;
+
+            int indent = bockLevelStartedBy(above);
+            state += QString(" ").repeated(indent);
+        }
+        state += QString::fromStdString(bockStateOfAbove);
     }
-
-    // add indentation if necessary
-    // NOTE: This does not work perfectly yet... but is good enough for
-    // the usual max of 2 stacking BOCKs.
-    QString preState = QString::fromStdString(bockState(index-1));
-    int expectedSize = preState.size();
-    QString cpy = state;
-    if (cpy.replace(" ", "").startsWith("Y") && cpy.endsWith("B")) expectedSize++;
-
-    if (!state.isEmpty() && !preState.endsWith("Y"))
-        state = QString(" ").repeated(expectedSize - state.length()) + state;
 
     return state.toStdString();
 }
