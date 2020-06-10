@@ -100,6 +100,7 @@ void CounterWidget::setModel(LogModel* model, const QString& filename)
     {
         disconnect(model_, &LogModel::dataChanged, this, &CounterWidget::delayedSave);
         disconnect(model_, &LogModel::headerDataChanged, this, &CounterWidget::delayedSave);
+        disconnect(model_);
         save();
         delete model_;
     }
@@ -112,6 +113,9 @@ void CounterWidget::setModel(LogModel* model, const QString& filename)
     {
         connect(model_, &LogModel::dataChanged, this, &CounterWidget::delayedSave);
         connect(model_, &LogModel::headerDataChanged, this, &CounterWidget::delayedSave);
+        connect(this->form_->spinMaxBock, QOverload<int>::of(&QSpinBox::valueChanged),
+                model_, &LogModel::setBockLimit);
+        model_->setBockLimit(this->form_->spinMaxBock->value());
 
         statsModel_.setLogModel(model);
         form_->tabWidget->insertTab(2, form_->tabStats, "Statistics");

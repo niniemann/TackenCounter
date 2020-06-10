@@ -17,7 +17,7 @@
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>2</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="tabStart">
       <attribute name="title">
@@ -232,6 +232,22 @@
               </property>
               <property name="checked">
                <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QSpinBox" name="spinMaxBock">
+              <property name="alignment">
+               <set>Qt::AlignCenter</set>
+              </property>
+              <property name="prefix">
+               <string>Bock-Limit: </string>
+              </property>
+              <property name="maximum">
+               <number>5</number>
+              </property>
+              <property name="value">
+               <number>2</number>
               </property>
              </widget>
             </item>

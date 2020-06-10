@@ -18,6 +18,9 @@ struct LogEntry {
     // if this game starts a bock(y), e.g. because its baseValue is 0 etc.
     bool startsBock;
 
+    // if the bock-trigger is suppressed, e.g. for exceeding the bock limit
+    bool bockTriggerSuppressed = false;
+
     // one result for every player (min 4, max 5 -- in case of 4 player the last one always skips)
     PlayerState results[5];
 

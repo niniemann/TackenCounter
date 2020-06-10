@@ -3,7 +3,7 @@
 #include <QColor>
 
 LogModel::LogModel()
-    : fivePlayers_(false), showCumSum_(false)
+    : fivePlayers_(false), showCumSum_(false), bockLimit_(2)
 {
     /*
     LogEntry e;
@@ -28,6 +28,7 @@ LogModel::LogModel()
     log_.push_back(e);
     */
 
+    recalcBockTriggers();
     recalcCumSum();
 
     // always recalculate the cum sum when something changes.
@@ -111,6 +112,7 @@ void LogModel::setFivePlayers(bool on)
         this->endResetModel();
     }
 
+    recalcBockTriggers();
     recalcCumSum();
 }
 
@@ -360,7 +362,15 @@ QVariant LogModel::data(const QModelIndex& index, int role) const
     else if (index.column() == GameStartsBock)
     {
         if (role == Qt::CheckStateRole)
-            return (log_[index.row()].startsBock ? Qt::Checked : Qt::Unchecked);
+        {
+            if (log_[index.row()].startsBock)
+            {
+                if (log_[index.row()].bockTriggerSuppressed)
+                    return Qt::PartiallyChecked;
+                return Qt::Checked;
+            }
+            return Qt::Unchecked;
+        }
         else if (role == Qt::DisplayRole)
         {
             return QString::fromStdString(bockState(index.row()));
@@ -416,6 +426,17 @@ QVariant LogModel::data(const QModelIndex& index, int role) const
     return QVariant();
 }
 
+void LogModel::setBockLimit(int num)
+{
+    bockLimit_ = num;
+    recalcBockTriggers();
+    recalcCumSum();
+}
+
+int LogModel::bockLimit() const
+{
+    return bockLimit_;
+}
 
 bool LogModel::setData(const QModelIndex& index, const QVariant& value, int role)
 {
@@ -438,16 +459,32 @@ bool LogModel::setData(const QModelIndex& index, const QVariant& value, int role
     // check state for triggers-bock
     else if (index.column() == GameStartsBock && role == Qt::CheckStateRole)
     {
-        log_[index.row()].startsBock = (value == Qt::Checked);
+        // a bit of a special edge case here:
+        // if startsBock is already set, but the trigger is suppressed,
+        // we display that as a "partial check" state. But when clicking a
+        // partitally checked item, the check-box-delegate wants to set it to
+        // Qt::Checked, but, Qt::Unchecked would be the logical new value.
+        // So, when Checked is requested, but it is already checked, we toggle.
+        // Sounds like a baaaaaad idea, but if it works?
+        if (value == Qt::Checked && log_[index.row()].startsBock)
+            log_[index.row()].startsBock = false;
+        else
+            log_[index.row()].startsBock = (value == Qt::Checked);
 
         // this changes the value of this,
         // the bock state of the following and the displayed value of the
         // following entries, as well as the cumulative sums etc...
         // Would a global "recalculate" be easier?
-        auto tl = this->index(index.row(), GameValue);
-        auto br = this->index(rowCount()-1, GameStartsBock);
+        //auto tl = this->index(index.row(), GameValue);
+        //auto br = this->index(rowCount()-1, GameStartsBock);
 
-        emit dataChanged(tl, br);
+        // actually, need to recalculate the suppressed bock triggers... :/
+        // this emits a model reset signal:
+        recalcBockTriggers();
+        // oh wait, this also affects the cumsum...
+        recalcCumSum();
+
+        //emit dataChanged(tl, br);
 
         return true;
     }
@@ -491,18 +528,6 @@ bool LogModel::isGameValid(int index) const
 
 
 
-int LogModel::activeBockCount(int index) const
-{
-    int c = 0;
-    const int bockLength = (fivePlayers_ ? 5 : 4);
-    for (int above = index-bockLength; above < index; above++)
-    {
-        if (above >= 0 && log_[above].startsBock) c++;
-    }
-    return c;
-}
-
-
 int LogModel::baseValue(int index) const
 {
     return log_[index].baseValue;
@@ -523,16 +548,58 @@ int LogModel::totalValue(int index) const
     return baseValue(index) * multiplier;
 }
 
+void LogModel::recalcBockTriggers()
+{
+    // incremental: a sliding window. activeBock always hold the number of
+    // not-suppressed bock-triggers in the last 4 or 5 rounds
+    int activeBock = 0;
+    int bockSpan = (fivePlayers_ ? 5 : 4);
+
+    for (size_t i = 0; i < log_.size(); i++)
+    {
+        // decrement for expiring bock
+        int expiredIndex = i - bockSpan;
+        if (expiredIndex >= 0 &&
+            log_[expiredIndex].startsBock &&
+            !log_[expiredIndex].bockTriggerSuppressed)
+        {
+            activeBock--;
+        }
+
+        // increment for the round before, which was just decided for if it is
+        // suppressed or not in the last iteration
+        int indexLastDecided = i - 1;
+        if (indexLastDecided >= 0 &&
+            log_[indexLastDecided].startsBock &&
+            !log_[indexLastDecided].bockTriggerSuppressed)
+        {
+            activeBock++;
+        }
+
+        // decide for this entry
+        log_[i].bockTriggerSuppressed = (activeBock >= bockLimit_);
+    }
+
+
+    // ... update everything ...
+    beginResetModel();
+    endResetModel();
+}
+
 
 bool LogModel::addsBock(int above, int index) const
 {
     if (above < 0) return false;
     if (above >= index) return false;
 
-    if (fivePlayers_ && (index-above) <= 5) return log_[above].startsBock;
-    if (!fivePlayers_ && (index-above) <= 4) return log_[above].startsBock;
+    if (fivePlayers_ && (index-above) <= 5)
+        return log_[above].startsBock && !log_[above].bockTriggerSuppressed;
+    if (!fivePlayers_ && (index-above) <= 4)
+        return log_[above].startsBock && !log_[above].bockTriggerSuppressed;
+
     return false;
 }
+
 
 
 std::string LogModel::bockState(int above, int index) const

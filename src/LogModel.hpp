@@ -21,6 +21,11 @@ class LogModel : public QAbstractItemModel {
 
     bool showCumSum_;
 
+    // maximum active bocks at a time.
+    // A bock-trigger is discarded if it would lead to a bock-count higher than
+    // bockLimit_ in the next round
+    int bockLimit_;
+
     std::string playerNames_[5];
 
     // the dummy is an additional, virtual entry in the list, as a convenient
@@ -30,6 +35,12 @@ class LogModel : public QAbstractItemModel {
 
 public slots:
     void recalcCumSum();
+
+    // iterates the whole model and re-calculates if a bock-trigger is suppressed or not
+    void recalcBockTriggers();
+
+    // no more bock-triggering in rounds where 'num' bocks are already active
+    void setBockLimit(int num);
 
 public:
     enum Columns {
@@ -52,6 +63,8 @@ public:
             cereal::make_nvp<Archive>("rounds", log_)
         );
     }
+
+    int bockLimit() const;
 
 
     void showCumSum(bool on);
@@ -86,8 +99,6 @@ public:
     // check if the entry at above influences the entry at index through a bock(y)
     bool addsBock(int above, int index) const;
 
-    // count the number of active bocks at a given index
-    int activeBockCount(int index) const;
 
     // compute the level at which the bock triggered by the game at index
     // starts ("how many characters/spaces before the B added by this at
