@@ -7,6 +7,7 @@
 
 #include "LogModel.hpp"
 #include "PlayerStatsModel.hpp"
+#include "GameStatsModel.hpp"
 
 namespace Ui {
     class CounterWidget;
@@ -23,6 +24,7 @@ class CounterWidget : public QWidget {
 
     LogModel* model_;
     PlayerStatsModel playerStats_;
+    GameStatsModel gameStats_;
 
     QString filename_;
 
@@ -36,6 +38,7 @@ class CounterWidget : public QWidget {
     QTimer saveDelayTimer_;
 
     void setModel(LogModel* model, const QString& filename);
+
 public:
     CounterWidget(QWidget* parent = nullptr);
     ~CounterWidget();

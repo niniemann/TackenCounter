@@ -99,6 +99,13 @@ public:
     // check if the entry at above influences the entry at index through a bock(y)
     bool addsBock(int above, int index) const;
 
+    // check if the given round has startsBock set to true
+    bool hasBockTrigger(int index) const;
+    // check of the given round can start a bock (is not suppressed due to limit)
+    bool canTriggerBock(int index) const;
+
+    // returns the number of active bock in the given round
+    int activeBockCount(int index) const;
 
     // compute the level at which the bock triggered by the game at index
     // starts ("how many characters/spaces before the B added by this at

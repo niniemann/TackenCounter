@@ -29,6 +29,7 @@ set(SRC
     src/PlayerStateDelegate.cpp
     src/LogModel.cpp
     src/PlayerStatsModel.cpp
+    src/GameStatsModel.cpp
     src/CounterWidget.cpp
     src/main.cpp
 

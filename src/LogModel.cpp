@@ -633,6 +633,27 @@ int LogModel::bockLevelStartedBy(int index) const
 }
 
 
+bool LogModel::hasBockTrigger(int index) const
+{
+    return log_[index].startsBock;
+}
+
+bool LogModel::canTriggerBock(int index) const
+{
+    return !log_[index].bockTriggerSuppressed;
+}
+
+int LogModel::activeBockCount(int index) const
+{
+    int num = 0;
+    for (int above = index-5; above < index; above++)
+    {
+        if (addsBock(above, index)) num++;
+    }
+    return num;
+}
+
+
 std::string LogModel::bockState(int index) const
 {
     if (index <= 0) return "";

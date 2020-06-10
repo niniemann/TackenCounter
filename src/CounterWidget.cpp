@@ -58,9 +58,16 @@ CounterWidget::CounterWidget(QWidget* parent)
     // recalculate the statistics whenever the current tab changed.
     connect(form_->tabWidget, &QTabWidget::currentChanged, this, &CounterWidget::updateStatistics);
 
-    form_->treeStats->setModel(&playerStats_);
+    form_->treeGameStats->setModel(&gameStats_);
+    form_->treePlayerStats->setModel(&playerStats_);
+
+    form_->treePlayerStats->header()->setSectionResizeMode(
+            QHeaderView::ResizeMode::Stretch);
+
+    qDebug() << "section count: " << form_->treePlayerStats->header()->count();
 
     connect(form_->btnChangeFont, &QPushButton::clicked, this, &CounterWidget::changeFont);
+
 }
 
 CounterWidget::~CounterWidget()
@@ -77,6 +84,7 @@ void CounterWidget::updateStatistics()
     if (!model_) return;
     model_->recalcCumSum();
     playerStats_.recalculate();
+    gameStats_.recalculate();
 
     for (int i = 0; i < 5; i++)
     {
@@ -118,7 +126,18 @@ void CounterWidget::setModel(LogModel* model, const QString& filename)
         model_->setBockLimit(this->form_->spinMaxBock->value());
 
         playerStats_.setLogModel(model);
+        gameStats_.setLogModel(model);
         form_->tabWidget->insertTab(2, form_->tabStats, "Statistics");
+
+        qDebug() << "section count: " << form_->treePlayerStats->header()->count();
+        form_->treePlayerStats->header()->setSectionResizeMode(
+                0, QHeaderView::ResizeToContents);
+
+        form_->treeView->header()->setSectionResizeMode(LogModel::Player1, QHeaderView::Stretch);
+        form_->treeView->header()->setSectionResizeMode(LogModel::Player2, QHeaderView::Stretch);
+        form_->treeView->header()->setSectionResizeMode(LogModel::Player3, QHeaderView::Stretch);
+        form_->treeView->header()->setSectionResizeMode(LogModel::Player4, QHeaderView::Stretch);
+        form_->treeView->header()->setSectionResizeMode(LogModel::Player5, QHeaderView::Stretch);
     }
 }
 
