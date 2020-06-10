@@ -48,7 +48,7 @@ CounterWidget::CounterWidget(QWidget* parent)
     // setup charts
     for (int p = 0; p < 5; p++)
     {
-        auto series = statsModel_.playerValueSeries(p);
+        auto series = playerStats_.playerValueSeries(p);
         playerValueChart_.addSeries(series);
     }
 
@@ -58,7 +58,7 @@ CounterWidget::CounterWidget(QWidget* parent)
     // recalculate the statistics whenever the current tab changed.
     connect(form_->tabWidget, &QTabWidget::currentChanged, this, &CounterWidget::updateStatistics);
 
-    form_->treeStats->setModel(&statsModel_);
+    form_->treeStats->setModel(&playerStats_);
 
     connect(form_->btnChangeFont, &QPushButton::clicked, this, &CounterWidget::changeFont);
 }
@@ -76,11 +76,11 @@ void CounterWidget::updateStatistics()
 {
     if (!model_) return;
     model_->recalcCumSum();
-    statsModel_.recalculate();
+    playerStats_.recalculate();
 
     for (int i = 0; i < 5; i++)
     {
-        auto series = statsModel_.playerValueSeries(i);
+        auto series = playerStats_.playerValueSeries(i);
         series->setName(model_->playerName(i));
 
         // charts are dumb. need to remove+add to update it...
@@ -117,7 +117,7 @@ void CounterWidget::setModel(LogModel* model, const QString& filename)
                 model_, &LogModel::setBockLimit);
         model_->setBockLimit(this->form_->spinMaxBock->value());
 
-        statsModel_.setLogModel(model);
+        playerStats_.setLogModel(model);
         form_->tabWidget->insertTab(2, form_->tabStats, "Statistics");
     }
 }

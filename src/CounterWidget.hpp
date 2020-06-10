@@ -6,7 +6,7 @@
 #include <QtCharts>
 
 #include "LogModel.hpp"
-#include "StatsModel.hpp"
+#include "PlayerStatsModel.hpp"
 
 namespace Ui {
     class CounterWidget;
@@ -22,7 +22,7 @@ class CounterWidget : public QWidget {
     Ui::CounterWidget* form_;
 
     LogModel* model_;
-    StatsModel statsModel_;
+    PlayerStatsModel playerStats_;
 
     QString filename_;
 

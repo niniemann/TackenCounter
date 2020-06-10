@@ -1,8 +1,8 @@
-#include "StatsModel.hpp"
+#include "PlayerStatsModel.hpp"
 #include <QColor>
 #include <cmath>
 
-StatsModel::StatsModel()
+PlayerStatsModel::PlayerStatsModel()
     : model_(nullptr)
 {
     statName_[RoundsPlayed] = "Rounds played";
@@ -15,21 +15,21 @@ StatsModel::StatsModel()
 }
 
 
-int StatsModel::rowCount(const QModelIndex& parent) const
+int PlayerStatsModel::rowCount(const QModelIndex& parent) const
 {
     if (parent.isValid()) return 0;
     if (!model_) return 0;
     return NumStats;
 }
 
-int StatsModel::columnCount(const QModelIndex& parent) const
+int PlayerStatsModel::columnCount(const QModelIndex& parent) const
 {
     if (parent.isValid()) return 0;
     if (!model_) return 0;
     return (model_->fivePlayers() ? 5 : 4) + 1; // +1: Name of statistic
 }
 
-QVariant StatsModel::headerData(int section, Qt::Orientation, int role) const
+QVariant PlayerStatsModel::headerData(int section, Qt::Orientation, int role) const
 {
     if (role == Qt::DisplayRole)
     {
@@ -44,7 +44,7 @@ QVariant StatsModel::headerData(int section, Qt::Orientation, int role) const
 }
 
 
-QVariant StatsModel::data(const QModelIndex& index, int role) const
+QVariant PlayerStatsModel::data(const QModelIndex& index, int role) const
 {
     if (role == Qt::TextAlignmentRole) return Qt::AlignCenter;
 
@@ -96,7 +96,7 @@ QVariant StatsModel::data(const QModelIndex& index, int role) const
     return QVariant();
 }
 
-bool StatsModel::playerHasMax(int player, Statistic stat) const
+bool PlayerStatsModel::playerHasMax(int player, Statistic stat) const
 {
     if (player >= 4 && !model_->fivePlayers()) return false;
 
@@ -115,7 +115,7 @@ bool StatsModel::playerHasMax(int player, Statistic stat) const
 }
 
 
-bool StatsModel::playerHasMin(int player, Statistic stat) const
+bool PlayerStatsModel::playerHasMin(int player, Statistic stat) const
 {
     if (player >= 4 && !model_->fivePlayers()) return false;
 
@@ -135,13 +135,13 @@ bool StatsModel::playerHasMin(int player, Statistic stat) const
 
 
 
-void StatsModel::setLogModel(LogModel* model)
+void PlayerStatsModel::setLogModel(LogModel* model)
 {
     model_ = model;
     recalculate();
 }
 
-void StatsModel::recalculate()
+void PlayerStatsModel::recalculate()
 {
     beginResetModel();
 
@@ -233,7 +233,7 @@ void StatsModel::recalculate()
 }
 
 
-QLineSeries* StatsModel::playerValueSeries(int player)
+QLineSeries* PlayerStatsModel::playerValueSeries(int player)
 {
     return &(playerStats_[player].valueSeries);
 }

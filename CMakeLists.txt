@@ -28,7 +28,7 @@ include_directories(src)
 set(SRC
     src/PlayerStateDelegate.cpp
     src/LogModel.cpp
-    src/StatsModel.cpp
+    src/PlayerStatsModel.cpp
     src/CounterWidget.cpp
     src/main.cpp
 

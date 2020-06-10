@@ -1,5 +1,5 @@
-#ifndef STATSMODEL_HPP_
-#define STATSMODEL_HPP_
+#ifndef PLAYERSTATSMODEL_HPP_
+#define PLAYERSTATSMODEL_HPP_
 
 #include <QAbstractTableModel>
 #include <QtCharts>
@@ -11,12 +11,12 @@
     This model connects to a log model and calculates some statistics on it,
     that are provided here separately.
 */
-class StatsModel : public QAbstractTableModel {
+class PlayerStatsModel : public QAbstractTableModel {
     Q_OBJECT
 
     LogModel* model_;
 public:
-    StatsModel();
+    PlayerStatsModel();
 
     enum Statistic {
         RoundsPlayed = 0,   // number of rounds played
@@ -60,4 +60,4 @@ public slots:
 };
 
 
-#endif /* include guard: STATSMODEL_HPP_ */
+#endif /* include guard: PLAYERSTATSMODEL_HPP_ */
