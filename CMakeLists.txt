@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 
-project(TackenCounter VERSION 0.2.0)
+project(TackenCounter VERSION 0.3.0)
 
 add_definitions(-DCEREAL_THREAD_SAFE=1)
 
