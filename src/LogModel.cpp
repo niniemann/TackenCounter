@@ -134,9 +134,9 @@ QVariant LogModel::headerData(int column, Qt::Orientation, int role) const
     {
         switch (column)
         {
-            case GameNumber: return "No.";
-            case GameValue: return "Value";
-            case GameStartsBock: return "B";
+            case GameNumber: return "Round #";
+            case GameValue: return "Tacken";
+            case GameStartsBock: return "Bock?";
             case Player1:
             case Player2:
             case Player3:
@@ -173,7 +173,7 @@ QVariant LogModel::headerData(int column, Qt::Orientation, int role) const
     }
     else if (role == Qt::TextAlignmentRole)
     {
-        if (column >= Player1 && column <= Player5)
+//        if (column >= Player1 && column <= Player5)
         {
             return Qt::AlignCenter;
         }
@@ -355,11 +355,14 @@ QVariant LogModel::data(const QModelIndex& index, int role) const
         {
             if (role == Qt::DisplayRole)
             {
-                return (isGameSolo(index.row()) ? "SOLO  " : "") + QString::number(index.row() + 1);
+                QString txt("%1 %2");
+                txt = txt.arg( isGameSolo(index.row()) ? "SOLO" : "", 4, ' ');
+                txt = txt.arg(QString::number(index.row()+1), 3, ' ');
+                return txt;
             }
             else if (role == Qt::TextAlignmentRole)
             {
-                return Qt::AlignRight;
+                return Qt::AlignCenter;
             }
         }
         else
