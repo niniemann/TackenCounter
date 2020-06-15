@@ -150,7 +150,10 @@ QVariant LogModel::headerData(int column, Qt::Orientation, int role) const
                     sum = log_.rbegin()->cumSum[p];
                 }
 
-                return playerName(p) + "\n[" + QString::number(sum) + "]";
+                QString txt = playerName(p) + "\n[" + QString::number(sum) + "] ";
+                if (playedASolo(column - Player1)) txt += QChar(0x2713); // checkmark
+                else                               txt += QChar(0x2715); // x
+                return txt;
             }
             case ColumnCount: return ""; // dummy. never reached
         }
@@ -195,7 +198,15 @@ bool LogModel::setHeaderData(int column, Qt::Orientation orientation,
     return false;
 }
 
-
+bool LogModel::playedASolo(int player) const
+{
+    for (size_t i = 0; i < log_.size(); i++)
+    {
+        int p;
+        if (isGameSolo(i, &p) && p == player) return true;
+    }
+    return false;
+}
 
 
 Qt::ItemFlags LogModel::flags(const QModelIndex& index) const

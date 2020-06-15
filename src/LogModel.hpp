@@ -66,6 +66,8 @@ public:
 
     int bockLimit() const;
 
+    // returns true if the player [0-4] already played a solo
+    bool playedASolo(int player) const;
 
     void showCumSum(bool on);
     int cumSum(int index, int player) const;
