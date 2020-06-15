@@ -12,6 +12,7 @@
 #include <cereal/cereal.hpp>
 #include <cereal/archives/json.hpp>
 #include <QSettings>
+#include <QValueAxis>
 
 CounterWidget::CounterWidget(QWidget* parent)
     : QWidget(parent), form_(new Ui::CounterWidget), model_(nullptr)
@@ -97,6 +98,29 @@ void CounterWidget::updateStatistics()
     }
 
     playerValueChart_.createDefaultAxes();
+
+    QValueAxis* xAxis = new QValueAxis();
+    xAxis->setTickCount(10);
+    xAxis->setLabelFormat("%.0f");
+    xAxis->setTitleText("Round #");
+    playerValueChart_.setAxisX(xAxis);
+
+    QValueAxis* yAxis = new QValueAxis();
+    yAxis->setTickCount(10);
+    yAxis->setLabelFormat("%.0f");
+    yAxis->setTitleText("Score");
+    playerValueChart_.setAxisY(yAxis);
+
+    for (int i = 0; i < 5; i++)
+    {
+        auto series = playerStats_.playerValueSeries(i);
+        series->attachAxis(xAxis);
+        series->attachAxis(yAxis);
+    }
+
+    yAxis->applyNiceNumbers();
+    xAxis->applyNiceNumbers();
+
 }
 
 

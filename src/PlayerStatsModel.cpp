@@ -158,6 +158,7 @@ void PlayerStatsModel::recalculate()
         stats.stats[SoliBeaten] = 0;
 
         stats.valueSeries.clear();
+        stats.valueSeries.append(0, 0);
     }
 
     if (!model_)
@@ -194,7 +195,7 @@ void PlayerStatsModel::recalculate()
             // add data point (cumsum over time)
             auto& series = playerStats_[p].valueSeries;
             auto cumsum = model_->cumSum(i, p);
-            series.append(i, cumsum);
+            series.append(i+1, cumsum);
         }
 
         // count soli
