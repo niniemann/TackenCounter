@@ -150,7 +150,7 @@ QVariant LogModel::headerData(int column, Qt::Orientation, int role) const
                     sum = log_.rbegin()->cumSum[p];
                 }
 
-                return playerName(p) + " [" + QString::number(sum) + "]";
+                return playerName(p) + "\n[" + QString::number(sum) + "]";
             }
             case ColumnCount: return ""; // dummy. never reached
         }
@@ -166,6 +166,13 @@ QVariant LogModel::headerData(int column, Qt::Orientation, int role) const
             case Player5: return playerName(4);
             default:
                           return QVariant();
+        }
+    }
+    else if (role == Qt::TextAlignmentRole)
+    {
+        if (column >= Player1 && column <= Player5)
+        {
+            return Qt::AlignCenter;
         }
     }
 
