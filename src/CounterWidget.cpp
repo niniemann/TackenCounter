@@ -138,6 +138,8 @@ void CounterWidget::setModel(LogModel* model, const QString& filename)
         form_->treeView->header()->setSectionResizeMode(LogModel::Player3, QHeaderView::Stretch);
         form_->treeView->header()->setSectionResizeMode(LogModel::Player4, QHeaderView::Stretch);
         form_->treeView->header()->setSectionResizeMode(LogModel::Player5, QHeaderView::Stretch);
+
+        form_->treeGameStats->header()->setSectionResizeMode(0, QHeaderView::ResizeMode::ResizeToContents);
     }
 }
 
